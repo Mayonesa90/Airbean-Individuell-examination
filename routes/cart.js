@@ -5,7 +5,7 @@ import { validatePrice } from '../middlewares/validation.js';
 import menu from "../models/coffeeMenu.js";
 
 const router = express.Router()
-const cart = new nedb({ filename: "models/cart.db", autoload: true });
+const cart = new nedb({ filename: "databases/cart.db", autoload: true });
 
 router.use(
   session({

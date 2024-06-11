@@ -3,7 +3,7 @@ import Datastore from "nedb";
 import { v4 as uuidv4 } from "uuid";
 //importerar v4-metoden från uuid-biblioteket och omdöper den till uuidv4 för användning i kod.
 
-const userDb = new Datastore({ filename: "users.db", autoload: true });
+const userDb = new Datastore({ filename: "databases/users.db", autoload: true });
 //Variabeln userDb har skapats för att lagra användarinformation i form av databasen users.db.
 
 const createUser = (username, password, callback) => {
