@@ -109,7 +109,9 @@ const router = express.Router()
   })
 
   router.put('/edit-item', requireAdminLogin, validateItemCreation, (req, res) => {
+    
     const {itemId, title, desc, price} = req.body
+    
     console.log(itemId);
     createEditedItem(itemId, title, desc, price, (err, docs) => {
       if(err){

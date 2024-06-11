@@ -63,15 +63,7 @@ router.get("/", async (req, res) => {
     console.error("Error fetching orders:", error);
     res.status(500).send("Internal server error");
   }
-  // try {
-  //   const showMenu = menu.find({});
-  //   console.log(showMenu);
-  //   res.send(showMenu)
 
-  // } catch (error) {
-  //   res.send('Something went wrong')
-  //   console.log(error);
-  // }
   });
 
   // Place an order and store in order history
