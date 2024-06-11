@@ -8,6 +8,7 @@ import aboutRouter from "./routes/about.js";
 import orderRouter from './routes/order.js'
 import cartRouter from './routes/cart.js'
 import authRouter from './routes/auth.js'
+import adminRouter from './routes/admin.js'
 
 import sessionMiddleware from "./middlewares/session.js";
 
@@ -51,6 +52,7 @@ app.use('/about', aboutRouter)
 app.use('/order', orderRouter)
 app.use('/cart', cartRouter)
 app.use('/account', authRouter)
+app.use('/admin', adminRouter)
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

@@ -1,17 +1,27 @@
 import express from 'express'
 import nedb from "nedb-promise";
 import session from "express-session"; // for handling user sessions - login status
-import path, {dirname} from 'path'
-import { fileURLToPath } from "url";
-
-import { validateMenu, validatePrice } from '../middlewares/validation.js';
-import menu from "../models/coffeeMenu.js";
+// import path, {dirname} from 'path'
+// import { fileURLToPath } from "url";
+// import { validateMenu } from '../models/menu.js';
+// import { validateMenu, validatePrice } from '../middlewares/validation.js';
+// import menu from "../models/coffeeMenu.js";
+import { menu } from '../models/menu.js'
 import { cart } from './cart.js'
-
 const router = express.Router()
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const orders = new nedb({ filename: "models/orders.db", autoload: true });
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = dirname(__filename);
+const orders = new nedb({ filename: "databases/orders.db", autoload: true });
+let menuItems = null
+menu.find({}, (err, docs) => {
+  menuItems = docs
+  getMenuItems(menuItems)
+});
+
+function getMenuItems(){
+  return menuItems
+}
+
 
 router.use(
   session({
@@ -30,27 +40,38 @@ router.use((req, res, next) => {
   next();
 });
 
+router.use((req, res, next) => {
+  if (typeof req.session.adminIsOnline === "undefined") {
+    req.session.adminIsOnline = false;
+  }
+  next();
+});
 
-router.get("/", validateMenu, (req, res) => {
-    const coffeeMenu = menu.map((item) => ({
-      title: item.title,
-      price: item.price,
-      id: item.id,
-    }));
-    
-    const items = coffeeMenu.map(item => `
-    <div style="margin-bottom: 20px;">
-      <p style="margin: 0;">ID: ${item.id}</p>
-      <p style="margin: 0;">Kaffe: ${item.title}</p>
-      <p style="margin: 0;">Pris: ${item.price} kr</p>
-    </div>
-  `).join('<br>');
+
+  //DELETE för att ta bort meny item
+  //GET visa meny
+  //POST för att skapa meny-item
+  //PATCH? för att redigera meny item
   
-  res.send(`
-    <div>
-      ${items}
-    </div>
-      `);
+  //Meny
+router.get("/", async (req, res) => {
+  try {
+      getMenuItems()
+      res.send(menuItems)
+
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    res.status(500).send("Internal server error");
+  }
+  // try {
+  //   const showMenu = menu.find({});
+  //   console.log(showMenu);
+  //   res.send(showMenu)
+
+  // } catch (error) {
+  //   res.send('Something went wrong')
+  //   console.log(error);
+  // }
   });
 
   // Place an order and store in order history
