@@ -58,9 +58,8 @@ const router = express.Router()
   
       req.session.currentAdminUser = user.userId; //sparar den aktuella användarens id så det går att nås från alla funktioner
       req.session.adminIsOnline = true; //ändrar variabeln till true
-  
       res.send(
-        `Admin was successfully logged in. Login status is: ${req.session.adminIsOnline}`
+        `Admin login: ${user.username} was successfully logged in.`
       );
     });
   });

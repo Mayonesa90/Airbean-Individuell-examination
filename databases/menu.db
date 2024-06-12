@@ -2,5 +2,11 @@
 {"itemId":"8fdbba8a-efc0-4445-8ffe-0e0c77c3fd99","title":"Cortado","desc":"Bryggs på månadens bönor","_id":"18RhRsO0OHeNJt7f","price":3}
 {"itemId":"6a7ed058-e450-4ba7-8d0f-63d6b747a0bd","title":"Latte Macchiato","desc":"Bryggs på månadens bönor","price":49,"_id":"388sFkhKrmcAuBoc"}
 {"itemId":"8ae8e7e0-2cc6-4873-98a4-f6b0dcd2ee34","title":"Kaffe Latte","desc":"Bryggs på månadens bönor","price":54,"_id":"4eyQIRrYDoxjFWcg"}
+{"itemId":"7a24be6a-8f8c-4b62-bd19-689c6d86ae15","title":"Chailatte","desc":"Telatte","price":49,"_id":"IK1RAyPygReH4AyH"}
+{"itemId":"4f829412-4c43-4f33-817c-8376741e65c1","title":"Cuban drink","desc":"Drink med rom och mynta","price":130,"createdAt":"6/12/2024","_id":"NbNHLfYMdHoGTOCD"}
+{"itemId":"294c6ec9-f706-4ccb-8420-1e96d3a8f5de","title":"Mojito","desc":"Drink med rom och mynta","price":130,"createdAt":1718182854,"_id":"NheGzMFFkiVm71GW"}
+{"itemId":"1f543f19-4faa-43b7-b803-ac47a81c69bd","title":"Cuban drink","desc":"Drink med rom och mynta","price":130,"createdAt":{"$$date":1718183050372},"_id":"XvPQAWlzwzqC2UNW"}
 {"itemId":"09bc3f06-04da-4514-928d-73ba6b7a9d1b","title":"Caffè Doppio","desc":"Bryggs på månadens bönor","price":49,"_id":"bMUAHawt5nmaXAEM"}
+{"itemId":"4951740d-3b5b-4608-a0e5-64587a28ae86","title":"Cuban drink","desc":"Drink med rom och mynta","price":130,"createdAt":"2024-06-12 11:06:49","_id":"oCY0dUCg3ruJpEtO"}
 {"itemId":"0c000544-c477-460a-b757-ff54145fd0d7","title":"Bryggkaffe","desc":"Bryggs på månadens bönor","price":39,"_id":"ugGREBao8sqZ0X45"}
+{"itemId":"4951740d-3b5b-4608-a0e5-64587a28ae86","title":"Cuba libre","desc":"Drink med rom och mynta","price":130,"createdAt":"2024-06-12 11:06:49","_id":"oCY0dUCg3ruJpEtO","modifiedAt":"2024-06-12 11:09:06"}
