@@ -17,47 +17,7 @@ const getMenuItem = (itemId, callback) => {
   menu.findOne({ itemId }, callback);
 }; 
 
-//Funktion för att validera den nya produkten
-const validateItemCreation = (req, res, next) => {
-  const {title, desc, price} = req.body;
-
-  if (!title || typeof title !== "string" || title.trim() === "") {
-    return res.status(400).json({ error: "Invalid or missing title" });
-  }
-  if (!desc || typeof desc !== "string" || desc.trim() === "") {
-    return res.status(400).json({ error: "Invalid or missing desc" });
-  }
-  if (!price || typeof price !== "number") {
-    return res.status(400).json({ error: "Invalid or missing price" });
-  }
-  next()
-
-};
-
-//Funktion för att validera redigering av en produkt
-const validateItemEdit = (req, res, next) => {
-  const {itemId, title, desc, price} = req.body; 
-  const itemToEdit = menu.find({itemId: itemId}) //Här kontrolleras att den finns i databasen
-
-  //Olika kontroler och felmeddelanden beroende på vad felet är
-  if(!itemToEdit){
-    return res.json({error: `The item with id ${itemId} could not be found`})
-  }
-  if (!title || typeof title !== "string" || title.trim() === "") {
-    return res.status(400).json({ error: "Invalid or missing title" });
-  }
-  if (!desc || typeof desc !== "string" || desc.trim() === "") {
-    return res.status(400).json({ error: "Invalid or missing desc" });
-  }
-  if (!price || typeof price !== "number") {
-    return res.status(400).json({ error: "Invalid or missing price" });
-  }
-
-  next()
-
-};
-
-//Funcktion för att uppdatera en produkt
+//Funktion för att uppdatera en produkt
 const updateItem = (itemId, origTitle, origDesc, origPrice, title, desc, price, callback) => {
     
   //skapar variabler för att sedan spara de antingen nya eller gamla värderna i dem
@@ -84,7 +44,6 @@ const updateItem = (itemId, origTitle, origDesc, origPrice, title, desc, price, 
     } else {
       newPrice = price
     }
-    // console.log(newTitle, newPrice, newDesc, itemId);
 
     //uppdatering av det valda item
     menu.update(
@@ -111,4 +70,4 @@ const deleteItem = (itemId, callback) => {
   })
 }
 
-export { createMenuItem, getMenuItem, validateItemCreation, validateItemEdit, updateItem, deleteItem, menu };
+export { createMenuItem, getMenuItem, updateItem, deleteItem, menu };

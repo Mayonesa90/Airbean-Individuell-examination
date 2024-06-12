@@ -1,13 +1,16 @@
 import express from 'express'
 import requireLogin from '../middlewares/requireLogin.js';
-
 import session from "express-session"; // for handling user sessions - login status
-import {
-    validateUserCreation
-  } from "../middlewares/validation.js";
-  import { createUser, getUserById, validateUser } from "../models/user.js";
+
+//Validation
+import validateUserCreation from "../middlewares/userValidation.js";
+
+//Models
+import { createUser, getUserById, validateUser } from "../models/user.js";
+
+//Databases
 import { orders } from './order.js'
-import {cart} from './cart.js'
+import { cart } from './cart.js'
 
 const router = express.Router()
 
