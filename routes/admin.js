@@ -2,7 +2,7 @@ import express from 'express'
 import session from "express-session";
 import { validateUserCreation } from "../middlewares/validation.js";
 import { createAdmin, getAdminById, validateAdmin } from "../models/admin.js";
-import { createEditedItem, createMenuItem, getMenuItem, validateItemCreation } from '../models/menu.js'
+import { updateItem, createMenuItem, getMenuItem, validateItemCreation } from '../models/menu.js'
 import requireAdminLogin from '../middlewares/requireAdminLogin.js';
 import {menu} from '../models/menu.js'
 
@@ -107,21 +107,40 @@ const router = express.Router()
         }
       })
   })
-
-  router.put('/edit-item', requireAdminLogin, validateItemCreation, (req, res) => {
-    
-    const {itemId, title, desc, price} = req.body
-    
-    console.log(itemId);
-    createEditedItem(itemId, title, desc, price, (err, docs) => {
-      if(err){
-        return res.status(500).json({ error: "Failed to edit menu item" }); // Skicka ett felmeddelande: false
-      }else {
-        res.status(201).json({ itemId });
+  //Visa produkt från meny med item id som path parameter
+  router.get('/:itemId', (req, res) => {
+    const itemId = req.params.itemId
+    getMenuItem(itemId, (err, item) => {
+      if (err || !item) {
+        return res.status(404).json({ error: "Item not found" });
       }
+      res.json(item);
+    });
 
+  })
+
+  router.put('/:itemId', requireAdminLogin, (req, res) => {
+    const itemId = req.params.itemId
+
+    getMenuItem(itemId, (err, item) => {
+      if (err || !item) {
+        return res.status(404).json({ error: "Item not found" });
+      }
+    
+    const origTitle = item.title
+    const origDesc = item.desc
+    const origPrice = item.price
+
+    const {title, desc, price} = req.body
+
+    updateItem(itemId, origTitle, origDesc, origPrice, title, desc, price, (err, updatedItem) => {
+      if (err || !updatedItem){
+        return res.status(404).json({ error: "Item could not be edited" });
+      }
+      res.json(updatedItem)
     })
   })
+})
 
 
 
