@@ -1,21 +1,23 @@
 import Datastore from "nedb";
 import { v4 as uuidv4 } from "uuid";
 
+//Databas för menyn
 const menu = new Datastore({ filename: "databases/menu.db", autoload: true });
 
-
-
+//Funktion för att lägga till en produkt i menyn
 const createMenuItem = (title, desc, price, callback) => {
-  const itemId = uuidv4();
+  const itemId = uuidv4(); //Ger unikt id till produkt
   const createdAt = new Date().toLocaleString() //Lägger till datum och tid för när den skapats
   const newItem = { itemId, title, desc, price, createdAt };
   menu.insert(newItem, callback);
 }; 
 
+//Funktion för att hämta en produkt från databasen
 const getMenuItem = (itemId, callback) => {
   menu.findOne({ itemId }, callback);
 }; 
 
+//Funktion för att validera den nya produkten
 const validateItemCreation = (req, res, next) => {
   const {title, desc, price} = req.body;
 
@@ -32,10 +34,12 @@ const validateItemCreation = (req, res, next) => {
 
 };
 
+//Funktion för att validera redigering av en produkt
 const validateItemEdit = (req, res, next) => {
-  const {itemId, title, desc, price} = req.body;
-  const itemToEdit = menu.find({itemId: itemId})
-  console.log(itemToEdit)
+  const {itemId, title, desc, price} = req.body; 
+  const itemToEdit = menu.find({itemId: itemId}) //Här kontrolleras att den finns i databasen
+
+  //Olika kontroler och felmeddelanden beroende på vad felet är
   if(!itemToEdit){
     return res.json({error: `The item with id ${itemId} could not be found`})
   }
@@ -48,11 +52,12 @@ const validateItemEdit = (req, res, next) => {
   if (!price || typeof price !== "number") {
     return res.status(400).json({ error: "Invalid or missing price" });
   }
+
   next()
 
 };
 
-
+//Funcktion för att uppdatera en produkt
 const updateItem = (itemId, origTitle, origDesc, origPrice, title, desc, price, callback) => {
     
   //skapar variabler för att sedan spara de antingen nya eller gamla värderna i dem
@@ -95,7 +100,7 @@ const updateItem = (itemId, origTitle, origDesc, origPrice, title, desc, price, 
 
 }; 
 
-
+//Funktion för att ta bort en produkt from databasen
 const deleteItem = (itemId, callback) => {
   menu.remove(
     {itemId: itemId}, {}, (err, numRemoved) => {

@@ -19,7 +19,6 @@ const INDEX_URL = "http://localhost:4000"
 
 //Middlewares
 app.use(express.static("public"))
-
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
