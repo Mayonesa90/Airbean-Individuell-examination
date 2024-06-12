@@ -4,7 +4,9 @@ import { validateUserCreation } from "../middlewares/validation.js";
 import { createAdmin, getAdminById, validateAdmin } from "../models/admin.js";
 import { updateItem, createMenuItem, getMenuItem, validateItemCreation, deleteItem } from '../models/menu.js'
 import requireAdminLogin from '../middlewares/requireAdminLogin.js';
-import {menu} from '../models/menu.js'
+import { createOffers } from '../models/offers.js';
+import { menu } from '../models/menu.js'
+// import { offers } from '../models/offers.js'
 
 //För att få ut datan från menyn
 let menuItems = null
@@ -158,11 +160,29 @@ router.delete('/:itemId', requireAdminLogin, (req, res) => {
     })
 
   })
-  
-
 
 })
 
+//POST - lägg till kampanjserbjudaanden
+router.post('/special-offers', requireAdminLogin, (req, res) => {
+  const {item1, item2} = req.body
 
+  getMenuItem(item1, (err, item1) => {
+    if (err || !item1) {
+      return res.status(404).json({ error: "Item1 not found" });
+    }
+    getMenuItem(item2, (err, item2) => {
+      if (err || !item2) {
+        return res.status(404).json({ error: "Item2 not found" });
+      }
+      createOffers(item1, item2, (err, docs) => {
+        if(err){
+          return res.status(500).json({error: 'Offer could not be created'})
+        }
+        res.json(docs)
+      })
+    });
+  });
+})
 
 export default router;
