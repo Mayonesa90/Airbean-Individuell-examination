@@ -93,4 +93,15 @@ const updateItem = (itemId, origTitle, origDesc, origPrice, title, desc, price, 
 
 }; 
 
-export { createMenuItem, getMenuItem, validateItemCreation, validateItemEdit, updateItem, menu };
+
+const deleteItem = (itemId, callback) => {
+  menu.remove(
+    {itemId: itemId}, {}, (err, numRemoved) => {
+    if(err){
+      return callback(err, null)
+    }
+    callback(null, numRemoved)
+  })
+}
+
+export { createMenuItem, getMenuItem, validateItemCreation, validateItemEdit, updateItem, deleteItem, menu };

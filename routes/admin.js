@@ -2,7 +2,7 @@ import express from 'express'
 import session from "express-session";
 import { validateUserCreation } from "../middlewares/validation.js";
 import { createAdmin, getAdminById, validateAdmin } from "../models/admin.js";
-import { updateItem, createMenuItem, getMenuItem, validateItemCreation } from '../models/menu.js'
+import { updateItem, createMenuItem, getMenuItem, validateItemCreation, deleteItem } from '../models/menu.js'
 import requireAdminLogin from '../middlewares/requireAdminLogin.js';
 import {menu} from '../models/menu.js'
 
@@ -92,8 +92,6 @@ const router = express.Router()
   });
 
  
-  //DELETE för att ta bort meny item
-  //GET visa meny
   //POST för att skapa meny-item
   router.post('/create-item', requireAdminLogin, validateItemCreation, (req, res) => {
         
@@ -107,7 +105,8 @@ const router = express.Router()
         }
       })
   })
-  //Visa produkt från meny med item id som path parameter
+
+  //GET produkt från meny med itemId som path parameter
   router.get('/:itemId', (req, res) => {
     const itemId = req.params.itemId
     getMenuItem(itemId, (err, item) => {
@@ -119,6 +118,7 @@ const router = express.Router()
 
   })
 
+  //PUT - redigera item med itemId som path parameter och ändringar i JSON body
   router.put('/:itemId', requireAdminLogin, (req, res) => {
     const itemId = req.params.itemId
 
@@ -142,8 +142,28 @@ const router = express.Router()
   })
 })
 
+//DELETE - ta bort item med itemId som pathparameter
+router.delete('/:itemId', requireAdminLogin, (req, res) => {
+  const itemId = req.params.itemId
+
+  getMenuItem(itemId, (err, item) => {
+    if (err || !item) {
+      return res.status(404).json({ error: "Item not found" });
+    }
+  
+    deleteItem(itemId, (err, numRemoved) => {
+      if(err || !numRemoved){
+      return res.status(404).json({error: 'Item could not be deleted'})
+    }
+    res.json(`Number of items removed: ${numRemoved}. Item with id ${itemId} successfully deleted`)
+    })
+
+  })
+  
 
 
-  //PATCH? för att redigera meny item
+})
+
+
 
 export default router;
