@@ -2,7 +2,8 @@ import express from 'express'
 import nedb from "nedb-promise";
 import session from "express-session"; // for handling user sessions - login status
 import { validatePrice } from '../middlewares/validation.js';
-import menu from "../models/coffeeMenu.js";
+// import menu from "../models/coffeeMenu.js";
+import { menu } from '../models/menu.js'
 
 const router = express.Router()
 const cart = new nedb({ filename: "databases/cart.db", autoload: true });
@@ -25,32 +26,40 @@ router.use((req, res, next) => {
 });
 
   //Användaren kan beställa
-  router.post("/", validatePrice, async (req, res) => {
+  router.post("/", async (req, res) => {
     try {
-      const orderId = req.body.id;
-      const selectedProduct = menu.find((product) => product.id === orderId);
-      const productTitle = selectedProduct.title;
-      const productPrice = selectedProduct.price;
-      //kontroll om varan finns i menyn
-      if (!selectedProduct) {
-        return res.status(404).send("The requested product could not be found");
-      }
-  
-      await cart.insert({
-        userId: req.session.currentUser || "guest", //sparar användarId
-        productId: selectedProduct.id,
-        title: selectedProduct.title,
-        price: selectedProduct.price,
-        date: new Date().toJSON().slice(0, 10).replace(/-/g, "/"), //sparar datum för beställning
-      });
-  
-      //oavsett om man är inloggad eller inte sparas varan till cart.db
-      // await cart.insert(selectedProduct)
-      //svaret som skickas till användaren
-      res.send(
-        `${productTitle} (${productPrice} kr) was successfully added to cart`
-      );
-    } catch (error) {
+      const orderId = req.body.id; //hämtar id från JSON body
+      let menuItems = null // skapar en variabek och sätter till null
+     
+      menu.findOne({itemId: orderId}, (err, docs) => { //justerat så att funktionen hämtar från meny-databasen
+   
+        menuItems = docs //sparar datan som hittas i variabeln
+
+        //extraherar titel och pris för att presentera för användaren
+        const productTitle = menuItems.title;
+        const productPrice = menuItems.price;
+
+        //kontroll om den inte hittar data eller om den är tom, då får man ett felmeddelande
+        if (!menuItems || menuItems.length === 0) {
+          return res.status(404).send("The requested product could not be found");
+        }
+
+        //lägger in produkt i användarens cart
+        cart.insert({
+          userId: req.session.currentUser || "guest", //sparar användarId eller gäst om man inte är inloggad
+          productId: menuItems.itemId,
+          title: menuItems.title,
+          price: menuItems.price,
+          date: new Date().toLocaleDateString(), //sparar datum för beställning
+        });
+
+        //meddelandet som skickas till användaren
+        res.send(
+          `${productTitle} (${productPrice} kr) was successfully added to cart`
+        );
+
+        });
+      } catch (error) {
       console.log(error);
       res.status(500).send("Internal Server Error");
     }
@@ -70,7 +79,7 @@ router.get("/", async (req, res) => {
       const sum = itemPrice.reduce((partialSum, a) => partialSum + a, 0);
       // kontroll om order.db är tom, i så fall får man ett felmeddelande
       if (cartItems.length === 0) {
-        return res.send("No orders found");
+        return res.send("Cart is empty :/");
       }
   
       cartItems.forEach((cartItem) => {
@@ -82,11 +91,6 @@ router.get("/", async (req, res) => {
       });
   
       res.send(cartSummary + `<p>Total: ${sum}kr</p>`);
-  
-      //kontroll om cart är tom, i så fall får man ett felmeddelande
-      if (cartItems.length === 0) {
-        return res.status(404).send("Cart is empty");
-      }
   
       return cartItems;
     } catch (error) {
