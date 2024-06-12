@@ -6,7 +6,8 @@ import { updateItem, createMenuItem, getMenuItem, validateItemCreation, deleteIt
 import requireAdminLogin from '../middlewares/requireAdminLogin.js';
 import { createOffers } from '../models/offers.js';
 import { menu } from '../models/menu.js'
-// import { offers } from '../models/offers.js'
+
+const router = express.Router()
 
 //För att få ut datan från menyn
 let menuItems = null
@@ -19,73 +20,72 @@ function getMenuItems(){
   return menuItems
 }
 
-const router = express.Router()
+// Skapar admin och returnerar admin-ID
+router.post("/register", validateUserCreation, (req, res) => {
+  const { username, password } = req.body;
+  createAdmin(username, password, (err, user) => {
+    if (err) {
+      // Om det uppstår ett fel
+      return res.status(500).json({ error: "Failed to create user" }); // Skicka ett felmeddelande: false
+    }
+    res.status(201).json({ userId: user.userId }); // Skicka användar-ID om inget fel uppstår: true
+  });
+});
   
 
-  // Skapar admin och returnerar admin-ID
-  router.post("/register", validateUserCreation, (req, res) => {
-    const { username, password } = req.body;
-    createAdmin(username, password, (err, user) => {
-      if (err) {
-        // Om det uppstår ett fel
-        return res.status(500).json({ error: "Failed to create user" }); // Skicka ett felmeddelande: false
-      }
-      res.status(201).json({ userId: user.userId }); // Skicka användar-ID om inget fel uppstår: true
-    });
+//Om admin skapas framgångsrikt, returneras ett svar med id. Annars returneras ett felmeddelande.
+router.get("/admin/:userId", (req, res) => {
+  const { adminId } = req.params;
+  getAdminById(adminId, (err, user) => {
+    if (err || !user) {
+       return res.status(404).json({ error: "User not found" });
+    }
+    res.json(user);
   });
+});
   
+// Login
+router.post("/login", (req, res) => {
+  const { username, password } = req.body;
+  validateAdmin(username, password, (err, user) => {
+    if (!user) {
+      res.status(401).send("Username or password was incorrect");
+      return;
+    }
+  
+    req.session.userId = user.userId; // Spara användarens ID i sessionen
+  
+    req.session.currentAdminUser = user.userId; //sparar den aktuella användarens id så det går att nås från alla funktioner
+    req.session.adminIsOnline = true; //ändrar variabeln till true
+    res.send(
+      `Admin login: ${user.username} was successfully logged in.`
+    );
+  });
+});
+  
+// Check login status
+router.get("/status", (req, res) => {
+  res.send(`Login status is: ${req.session.adminIsOnline}`);
+});
+  
+// Logga-ut funktion tll admin
+router.post("/logout", requireAdminLogin, async (req, res) => {
+  try {
 
-  //Om användaren skapas framgångsrikt, returneras ett svar med användar-ID. Annars returneras ett felmeddelande.
-  // Get user by ID
-  router.get("/admin/:userId", (req, res) => {
-    const { adminId } = req.params;
-    getAdminById(adminId, (err, user) => {
-      if (err || !user) {
-        return res.status(404).json({ error: "User not found" });
-      }
-      res.json(user);
-    });
-  });
+    const userId = req.session.userId;
+    //Kontroll om användarId inte finns
+    if (!userId) {
+      return res.status(400).send("User ID is missing from session");
+    }
+
+    // Logga ut admin
+    req.session.adminIsOnline = false;
+    req.session.userId = null;
   
-  // Login
-  router.post("/login", (req, res) => {
-    const { username, password } = req.body;
-    validateAdmin(username, password, (err, user) => {
-      if (!user) {
-        res.status(401).send("Username or password was incorrect");
-        return;
-      }
-  
-      req.session.userId = user.userId; // Spara användarens ID i sessionen
-  
-      req.session.currentAdminUser = user.userId; //sparar den aktuella användarens id så det går att nås från alla funktioner
-      req.session.adminIsOnline = true; //ändrar variabeln till true
-      res.send(
-        `Admin login: ${user.username} was successfully logged in.`
-      );
-    });
-  });
-  
-  // Check login status
-  router.get("/status", (req, res) => {
-    res.send(`Login status is: ${req.session.adminIsOnline}`);
-  });
-  
-  // Logout och specifik användares varukorg rensas
-  router.post("/logout", requireAdminLogin, async (req, res) => {
-    try {
-      const userId = req.session.userId;
-      if (!userId) {
-        return res.status(400).send("User ID is missing from session");
-      }
-  
-      req.session.adminIsOnline = false;
-      req.session.userId = null;
-      // Logga ut användaren
-  
-      res.send(
-        `Admin was successfully logged out. Login status is: ${req.session.adminIsOnline}.`
-      );
+    res.send(
+      `Admin was successfully logged out. Login status is: ${req.session.adminIsOnline}.`
+    );
+
     } catch (error) {
       console.error(error);
       res.status(500).send("Failed to log out");
@@ -163,7 +163,7 @@ router.delete('/:itemId', requireAdminLogin, (req, res) => {
 
 })
 
-//POST - lägg till kampanjserbjudaanden
+//POST - lägg till kampanjerbjudanden
 router.post('/special-offers', requireAdminLogin, (req, res) => {
   const {item1, item2} = req.body
 
@@ -175,7 +175,10 @@ router.post('/special-offers', requireAdminLogin, (req, res) => {
       if (err || !item2) {
         return res.status(404).json({ error: "Item2 not found" });
       }
-      createOffers(item1, item2, (err, docs) => {
+      //Skapa variabler för att lägga in pris från produkterna
+      const priceForBoth = (item1.price + item2.price) * 0.8
+      const discount = (item1.price + item2.price) * 0.2
+      createOffers(item1, item2, priceForBoth, discount, (err, docs) => {
         if(err){
           return res.status(500).json({error: 'Offer could not be created'})
         }
