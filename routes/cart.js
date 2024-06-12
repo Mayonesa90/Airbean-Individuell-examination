@@ -101,7 +101,7 @@ router.get("/", async (req, res) => {
 
   // Helper function to delete an item from the cart
 async function deleteItem(id) {
-    return cart.remove({ productId: parseInt(id, 10)}, {}); //ändrade från id till productId
+    return cart.remove({ productId: id}, {}); //ändrade från id till productId
   }
   
   // Delete item from cart endpoint
