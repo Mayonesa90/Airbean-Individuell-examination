@@ -1,18 +1,22 @@
 import express from 'express'
 import nedb from "nedb-promise";
 import session from "express-session"; // for handling user sessions - login status
-// import path, {dirname} from 'path'
-// import { fileURLToPath } from "url";
-// import { validateMenu } from '../models/menu.js';
-// import { validateMenu, validatePrice } from '../middlewares/validation.js';
-// import menu from "../models/coffeeMenu.js";
+import { v4 as uuidv4 } from "uuid";
+import sessionMiddleware from '../middlewares/session.js';
+import adminSessionMiddleware from '../middlewares/adminSession.js';
+import { extractPrices, sumPrices } from '../services/orderServices.js';
+
+//Databaser
 import { menu } from '../models/menu.js'
 import { cart } from './cart.js'
-import { v4 as uuidv4 } from "uuid";
+
 const router = express.Router()
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = dirname(__filename);
+
+//Databas för ordrar
 const orders = new nedb({ filename: "databases/orders.db", autoload: true });
+
+
+//Funktion för att ta ut innehållet i menyn
 let menuItems = null
 menu.find({}, (err, docs) => {
   menuItems = docs
@@ -34,22 +38,10 @@ router.use(
 );
 
 // Middleware to make session variables accessible
-router.use((req, res, next) => {
-  if (typeof req.session.isOnline === "undefined") {
-    req.session.isOnline = false;
-  }
-  next();
-});
+router.use(sessionMiddleware)
+router.use(adminSessionMiddleware)
 
-router.use((req, res, next) => {
-  if (typeof req.session.adminIsOnline === "undefined") {
-    req.session.adminIsOnline = false;
-  }
-  next();
-});
-
-  
-  //Meny
+//Meny
 router.get("/", async (req, res) => {
   try {
       getMenuItems()
@@ -75,21 +67,21 @@ router.post("/", async (req, res) => {
     }
     
     const estimatedDeliveryTime = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes from now
-    const [ { price: price1 }, { price: price2 } ] = currentUserCart;
-    const sum = price1 + price2
+    const prices = extractPrices(currentUserCart);
+    const sum = sumPrices(prices)
 
     // Create an order
     const order = {
       userId: req.session.currentUser || 'guest',
       items: currentUserCart,
       total: sum,
-      orderDate: new Date().toLocaleString(),
+      orderDate: new Date().toLocaleString(), //Här läggs datum för order till
       estimatedDeliveryTime,
-      orderId: uuidv4()
+      orderId: uuidv4() //Här skapas ett unikt orderid som sen skickas tillbaka till användaren
     };
 
     // Insert the order into the orders database
-    await orders.insert(order); //på något sätt måste man få tillbaka orderid härifrån och skicka till användaren
+    await orders.insert(order);
     res.send(order)
     
     // Clear the cart for the current user
@@ -114,6 +106,7 @@ router.get("/:orderId", async (req, res) => {
     const items = order.items
       .map((item) => `<li>${item.title} (${item.price} kr)</li>`)
       .join("");
+      
     const estimatedDeliveryTime = order.estimatedDeliveryTime;
 
     res.send(
@@ -124,5 +117,6 @@ router.get("/:orderId", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
 export {orders}
 export default router;

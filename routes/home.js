@@ -4,7 +4,6 @@ import bodyParser from 'body-parser';
 const router = express.Router()
 const INDEX_URL = "http://localhost:4000"
 
-// router.use(express.static('public'))
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
 
