@@ -18,7 +18,6 @@ Se endpoints nedan tillsammans med instruktioner:
 
 | Anrop       | Endpoints        | Resultat | Instruktioner |
 | ------------- | :----------| :-----| ---------------------------------- |
-| GET | / | Startsidan | |
 | GET | /about | Om oss | |
 | GET | /order | Meny | Här kan du se id på den produkten du vill beställa (det behöver du sedan för att kunna lägga varan i varukorgen) |
 | POST | /cart | Lägg i varukorg | I JSON-body ange id på den varan du vill lägga i varukorgen, t.ex: `{"id": "3edc7d79-272d-4634-9a70-c443d884cf59"}` Du får sen ett svar med namnet och priset på varan som lagts till |
