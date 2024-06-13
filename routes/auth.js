@@ -1,44 +1,43 @@
 import express from 'express'
 import requireLogin from '../middlewares/requireLogin.js';
-
 import session from "express-session"; // for handling user sessions - login status
-import {
-    validateUserCreation
-  } from "../middlewares/validation.js";
-  import { createUser, getUserById, validateUser } from "../models/user.js";
+import sessionMiddleware from '../middlewares/session.js';
+
+//Validation
+import validateUserCreation from "../middlewares/userValidation.js";
+
+//Models
+import { createUser, getUserById, validateUser } from "../models/user.js";
+
+//Databases
 import { orders } from './order.js'
-import {cart} from './cart.js'
+import { cart } from './cart.js'
 
 const router = express.Router()
-
 
 //Orders - användaren kan se tidigare orderhistorik om inloggad
 router.get("/orders", requireLogin, async (req, res) => {
     try {
       const currentUserOrders = await orders.find({ userId: req.session.currentUser });
   
-      if (!currentUserOrders) { //måste justeras, just nu fattar den inte om den inte har någon order
+      if (currentUserOrders.length === 0) { 
         return res.status(404).send("Orders not found");
       }
 
-      const orderItems = currentUserOrders.map((order) => order.items).flatMap(items => items.map(item => ({
-        date: item.date,
-        title: item.title,
-        price: item.price,
-      })))
-  
-      let orderHistory = "Previous orders:\n";
-      const orderIds = currentUserOrders.map(order => order._id).join("<br>")
-  
-      orderItems.forEach((order) => {
-        const productName = order.title;
-        const orderDate = order.date;
-        const orderPrice = order.price;
-        orderHistory += `<li>${orderDate}: ${productName} (${orderPrice} kr)</li>`;
-      });
-  
-      res.send(`${orderHistory} <br>Order id's:<br>${orderIds}`);
-  
+      const extractedData = currentUserOrders.map(order => {
+        return {
+            orderId: order.orderId,
+            orderDate: order.orderDate,
+            total: order.total,
+            items: order.items.map(item => ({
+                title: item.title,
+                price: item.price
+            }))
+        };
+
+    });
+
+      res.json(extractedData)
     } catch (error) {
       console.error("Error fetching orders:", error);
       res.status(500).send("Internal server error");
@@ -57,19 +56,7 @@ router.get("/orders", requireLogin, async (req, res) => {
       res.status(201).json({ userId: user.userId }); // Skicka användar-ID om inget fel uppstår: true
     });
   });
-  
 
-  //Om användaren skapas framgångsrikt, returneras ett svar med användar-ID. Annars returneras ett felmeddelande.
-  // Get user by ID
-  router.get("/users/:userId", (req, res) => {
-    const { userId } = req.params;
-    getUserById(userId, (err, user) => {
-      if (err || !user) {
-        return res.status(404).json({ error: "User not found" });
-      }
-      res.json(user);
-    });
-  });
   
   // Login
   router.post("/login", (req, res) => {
@@ -86,7 +73,7 @@ router.get("/orders", requireLogin, async (req, res) => {
       req.session.isOnline = true; //ändrar variabeln till true
   
       res.send(
-        `User was successfully logged in. Login status is: ${req.session.isOnline}`
+        `User ${user.username} was successfully logged in. Login status is: ${req.session.isOnline}`
       );
     });
   });
@@ -94,6 +81,17 @@ router.get("/orders", requireLogin, async (req, res) => {
   // Check login status
   router.get("/status", (req, res) => {
     res.send(`Login status is: ${req.session.isOnline}`);
+  });
+
+  // Get user by ID
+  router.get("/users/account-details", requireLogin, (req, res) => {
+    const userId  = req.session.currentUser
+    getUserById(userId, (err, user) => {
+      if (err || !user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      res.json(user);
+    });
   });
   
   // Logout och specifik användares varukorg rensas
