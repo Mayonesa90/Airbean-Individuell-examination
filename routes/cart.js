@@ -1,6 +1,8 @@
 import express from 'express'
 import nedb from "nedb-promise";
 import session from "express-session"; // for handling user sessions - login status
+import sessionMiddleware from '../middlewares/session.js';
+import deleteItem from '../services/cartServices.js';
 
 //Databases
 import { menu } from '../models/menu.js'
@@ -20,18 +22,13 @@ router.use(
 );
 
 // Middleware to make session variables accessible
-router.use((req, res, next) => {
-  if (typeof req.session.isOnline === "undefined") {
-    req.session.isOnline = false;
-  }
-  next();
-});
+router.use(sessionMiddleware);
 
-  //Användaren kan lägga i varukorgen
-  router.post("/", async (req, res) => {
-    try {
+//Användaren kan lägga i varukorgen
+router.post("/", async (req, res) => {
+  try {
       const orderId = req.body.id; //hämtar id från JSON body
-      let menuItems = null // skapar en variabek och sätter till null
+      let menuItems = null // skapar en variabel och sätter till null
      
       menu.findOne({itemId: orderId}, (err, docs) => { //justerat så att funktionen hämtar från meny-databasen
    
@@ -60,7 +57,8 @@ router.use((req, res, next) => {
           `${productTitle} (${productPrice} kr) was successfully added to cart`
         );
 
-        });
+      });
+
       } catch (error) {
       console.log(error);
       res.status(500).send("Internal Server Error");
@@ -79,6 +77,7 @@ router.get("/", async (req, res) => {
       let cartSummary = "Cart:\n";
       const itemPrice = cartItems.map((item) => item.price);
       const sum = itemPrice.reduce((partialSum, a) => partialSum + a, 0);
+
       // kontroll om order.db är tom, i så fall får man ett felmeddelande
       if (cartItems.length === 0) {
         return res.send("Cart is empty :/");
@@ -101,11 +100,6 @@ router.get("/", async (req, res) => {
     }
   });
 
-  // Helper function to delete an item from the cart
-async function deleteItem(id) {
-    return cart.remove({ productId: id}, {}); //ändrade från id till productId
-  }
-  
   // Delete item from cart endpoint
   router.delete("/:id", async (req, res) => {
     try {

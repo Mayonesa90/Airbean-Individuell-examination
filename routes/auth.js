@@ -1,12 +1,7 @@
 import express from 'express'
 import requireLogin from '../middlewares/requireLogin.js';
 import session from "express-session"; // for handling user sessions - login status
-import sessionMiddleware from '../middlewares/session.js';
-
-//Validation
 import validateUserCreation from "../middlewares/userValidation.js";
-
-//Models
 import { createUser, getUserById, validateUser } from "../models/user.js";
 
 //Databases
@@ -38,6 +33,7 @@ router.get("/orders", requireLogin, async (req, res) => {
     });
 
       res.json(extractedData)
+      
     } catch (error) {
       console.error("Error fetching orders:", error);
       res.status(500).send("Internal server error");
@@ -67,8 +63,6 @@ router.get("/orders", requireLogin, async (req, res) => {
         return;
       }
   
-      req.session.userId = user.userId; // Spara användarens ID i sessionen
-  
       req.session.currentUser = user.userId; //sparar den aktuella användarens id så det går att nås från alla funktioner
       req.session.isOnline = true; //ändrar variabeln till true
   
@@ -85,29 +79,31 @@ router.get("/orders", requireLogin, async (req, res) => {
 
   // Get user by ID
   router.get("/users/account-details", requireLogin, (req, res) => {
+    
     const userId  = req.session.currentUser
+
     getUserById(userId, (err, user) => {
       if (err || !user) {
         return res.status(404).json({ error: "User not found" });
       }
       res.json(user);
     });
+
   });
   
   // Logout och specifik användares varukorg rensas
   router.post("/logout", requireLogin, async (req, res) => {
     try {
-      const userId = req.session.userId;
+      const userId = req.session.currentUser;
       if (!userId) {
         return res.status(400).send("User ID is missing from session");
       }
-  
+      
+      // Rensar användarens varukorg
       const numRemoved = await cart.remove({ userId: userId }, { multi: true });
-      // Rensa användarens varukorg
-  
-      req.session.isOnline = false;
-      req.session.userId = null;
-      // Logga ut användaren
+      
+      req.session.isOnline = false; //sätter loginstatus till false
+      req.session.currentUser = null; //sätter currentUser till null
   
       res.send(
         `User was successfully logged out and cart cleared. Login status is: ${req.session.isOnline}, Items removed from cart: ${numRemoved}`

@@ -1,12 +1,8 @@
 import express from 'express'
 import session from "express-session";
-
-//Validation
 import validateUserCreation from "../middlewares/userValidation.js";
 import { validateItemCreation } from '../middlewares/menuValidation.js'
 import requireAdminLogin from '../middlewares/requireAdminLogin.js';
-
-//Models?
 import { createAdmin, getAdminById, validateAdmin } from "../models/admin.js";
 import { updateItem, createMenuItem, getMenuItem, deleteItem } from '../models/menu.js'
 import { createOffers } from '../models/offers.js';
@@ -60,10 +56,9 @@ router.post("/login", (req, res) => {
       return;
     }
   
-    req.session.userId = user.userId; // Spara användarens ID i sessionen
-  
     req.session.currentAdminUser = user.userId; //sparar den aktuella användarens id så det går att nås från alla funktioner
     req.session.adminIsOnline = true; //ändrar variabeln till true
+    
     res.send(
       `Admin login: ${user.username} was successfully logged in.`
     );
@@ -79,7 +74,7 @@ router.get("/status", (req, res) => {
 router.post("/logout", requireAdminLogin, async (req, res) => {
   try {
 
-    const userId = req.session.userId;
+    const userId = req.session.currentAdminUser;
     //Kontroll om användarId inte finns
     if (!userId) {
       return res.status(400).send("User ID is missing from session");
@@ -87,7 +82,7 @@ router.post("/logout", requireAdminLogin, async (req, res) => {
 
     // Logga ut admin
     req.session.adminIsOnline = false;
-    req.session.userId = null;
+    req.session.currentAdminUser = null;
   
     res.send(
       `Admin was successfully logged out. Login status is: ${req.session.adminIsOnline}.`

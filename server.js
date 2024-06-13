@@ -3,7 +3,6 @@ import bodyParser from "body-parser";
 import session from "express-session";
 import axios from "axios";
 
-import homeRouter from "./routes/home.js";
 import aboutRouter from "./routes/about.js";
 import orderRouter from './routes/order.js'
 import cartRouter from './routes/cart.js'
@@ -16,13 +15,6 @@ const app = express();
 const PORT = 8000;
 const INDEX_URL = "http://localhost:4000"
 
-
-//Middlewares
-app.use(express.static("public"))
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-
-
 // Session configuration - needed for login functionality
 app.use(
   session({
@@ -33,11 +25,13 @@ app.use(
   })
 );
 
-// Middleware to make session variables accessible
+//Middlewares
+app.use(express.static("public"))
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use(sessionMiddleware);
 
 // Routes
-// app.use('/', homeRouter)
 app.get("/", async(req, res) => {
   try {
     const response = await axios.get(`${INDEX_URL}/index`)
