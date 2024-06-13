@@ -1,11 +1,13 @@
 import express from 'express'
 import nedb from "nedb-promise";
 import session from "express-session"; // for handling user sessions - login status
-import { validatePrice } from '../middlewares/validation.js';
-// import menu from "../models/coffeeMenu.js";
+
+//Databases
 import { menu } from '../models/menu.js'
 
 const router = express.Router()
+
+//Databas för cart
 const cart = new nedb({ filename: "databases/cart.db", autoload: true });
 
 router.use(
@@ -25,7 +27,7 @@ router.use((req, res, next) => {
   next();
 });
 
-  //Användaren kan beställa
+  //Användaren kan lägga i varukorgen
   router.post("/", async (req, res) => {
     try {
       const orderId = req.body.id; //hämtar id från JSON body
@@ -121,7 +123,7 @@ async function deleteItem(id) {
     }
   });
 
-// Rensa användarens kundvagn baserat på det specifikicerade användar-ID:t
+// Rensa användarens kundvagn baserat på användar-ID
 router.delete("/delete/:userId", (req, res) => {
     const { userId } = req.params;
   

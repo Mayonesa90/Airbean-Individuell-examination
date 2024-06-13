@@ -1,10 +1,17 @@
 import express from 'express'
 import session from "express-session";
-import { validateUserCreation } from "../middlewares/validation.js";
-import { createAdmin, getAdminById, validateAdmin } from "../models/admin.js";
-import { updateItem, createMenuItem, getMenuItem, validateItemCreation, deleteItem } from '../models/menu.js'
+
+//Validation
+import validateUserCreation from "../middlewares/userValidation.js";
+import { validateItemCreation } from '../middlewares/menuValidation.js'
 import requireAdminLogin from '../middlewares/requireAdminLogin.js';
+
+//Models?
+import { createAdmin, getAdminById, validateAdmin } from "../models/admin.js";
+import { updateItem, createMenuItem, getMenuItem, deleteItem } from '../models/menu.js'
 import { createOffers } from '../models/offers.js';
+
+//Databases
 import { menu } from '../models/menu.js'
 
 const router = express.Router()
