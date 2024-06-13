@@ -7,7 +7,7 @@ const userDb = new Datastore({ filename: "databases/users.db", autoload: true })
 //Funktione för att skapa en ny användare i databasen
 const createUser = (username, password, callback) => {
   const userId = uuidv4();
-  const newUser = { userId, username, password, orders: [] };
+  const newUser = { userId, username, password};
   userDb.insert(newUser, callback);
 }; 
 

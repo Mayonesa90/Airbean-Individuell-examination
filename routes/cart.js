@@ -27,7 +27,7 @@ router.use((req, res, next) => {
   next();
 });
 
-  //Användaren kan beställa
+  //Användaren kan lägga i varukorgen
   router.post("/", async (req, res) => {
     try {
       const orderId = req.body.id; //hämtar id från JSON body

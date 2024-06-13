@@ -8,6 +8,7 @@ import session from "express-session"; // for handling user sessions - login sta
 // import menu from "../models/coffeeMenu.js";
 import { menu } from '../models/menu.js'
 import { cart } from './cart.js'
+import { v4 as uuidv4 } from "uuid";
 const router = express.Router()
 // const __filename = fileURLToPath(import.meta.url);
 // const __dirname = dirname(__filename);
@@ -47,11 +48,6 @@ router.use((req, res, next) => {
   next();
 });
 
-
-  //DELETE för att ta bort meny item
-  //GET visa meny
-  //POST för att skapa meny-item
-  //PATCH? för att redigera meny item
   
   //Meny
 router.get("/", async (req, res) => {
@@ -77,14 +73,19 @@ router.post("/", async (req, res) => {
     if (currentUserCart.length === 0) {
       return res.status(404).send("Cart is empty");
     }
-   
+    
     const estimatedDeliveryTime = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes from now
+    const [ { price: price1 }, { price: price2 } ] = currentUserCart;
+    const sum = price1 + price2
 
     // Create an order
     const order = {
       userId: req.session.currentUser || 'guest',
       items: currentUserCart,
+      total: sum,
+      orderDate: new Date().toLocaleString(),
       estimatedDeliveryTime,
+      orderId: uuidv4()
     };
 
     // Insert the order into the orders database
@@ -104,7 +105,7 @@ router.post("/", async (req, res) => {
 router.get("/:orderId", async (req, res) => {
   try {
     const { orderId } = req.params;
-    const order = await orders.findOne({ _id: orderId });
+    const order = await orders.findOne({ orderId: orderId });
 
     if (!order) {
       return res.status(404).send("Order not found");
