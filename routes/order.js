@@ -52,7 +52,7 @@ router.get("/", async (req, res) => {
     res.status(500).send("Internal server error");
   }
 
-  });
+});
 
   // Place an order and store in order history
 router.post("/", async (req, res) => {

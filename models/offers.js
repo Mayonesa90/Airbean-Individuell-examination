@@ -1,6 +1,5 @@
 import Datastore from "nedb";
 import { v4 as uuidv4 } from "uuid";
-// import { menu } from './menu.js'
 
 const offers = new Datastore({ filename: "databases/offers.db", autoload: true });
 
