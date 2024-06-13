@@ -16,11 +16,11 @@ Det är ett nodeprojekt skapat med express.
 
 Se endpoints nedan tillsammans med instruktioner:
 
-| Anrop       | Route           | Resultat | Instruktioner |
-| ------------- |:-------------| -----:|
-| GET | / | Startsidan |
-| GET | /about | Om oss |
-| GET | /order | Meny | 
+| Anrop       | Endpoints        | Resultat | Instruktioner |
+| ------------- | :----------| :-----| ---------------------------------- |
+| GET | / | Startsidan | |
+| GET | /about | Om oss | |
+| GET | /order | Meny | Här kan du se id på den produkten du vill beställa (det behöver du sedan för att kunna lägga varan i varukorgen) |
 | POST | /cart | Lägg i varukorg | I JSON-body ange id på den varan du vill lägga i varukorgen, t.ex: `{"id": "3edc7d79-272d-4634-9a70-c443d884cf59"}` Du får sen ett svar med namnet och priset på varan som lagts till |
 | GET | /cart | Se varukorg | Du ser alla varor i varukorgen samt den totala summan |
 | DEL | /cart/:id | Ta bort vara från varukorg | Om du vill ta bort en vara anger du id på den produkten som path parameter |
@@ -33,14 +33,14 @@ Se endpoints nedan tillsammans med instruktioner:
 | GET | /account/users/account-details | Se kontodetaljer | Om du är inloggad kan du se dina kontodetaljer här |
 | POST | /account/logout | Logga ut + rensa vaukorg | Om du är inloggad och loggar ut rensas även varukorgen |
 | POST | /admin/register | Registrera konto som admin | Ange användarnamn och lösenord i följande format i JSON body: `{"username": "dittAnvändarnamn", "password": "dittLösenord"}`, ditt användarId returneras |
-| POST | /admin/login | Logga in som admin | Ange användarnamn och lösenord i följande format i JSON body: `{"username": "dittAnvändarnamn", "password": "dittLösenord"}, du får en bekräftelse på att du är inloggad |
-| GET | /admin/status | Se loginstatus som admin | 
-| POST | /admin/logout | Logga ut |
+| POST | /admin/login | Logga in som admin | Ange användarnamn och lösenord i följande format i JSON body: `{"username": "dittAnvändarnamn", "password": "dittLösenord"}`, du får en bekräftelse på att du är inloggad |
+| GET | /admin/status | Se loginstatus som admin | |
+| POST | /admin/logout | Logga ut | |
 | POST | /admin/create-item | Lägg till vara i menyn | Om du är inloggad som admin kan du lägga till varor här. Ange i följande i JSON format `{"title": "titelPåVaran", "desc": "Beskrivning av varan", "price": 33}` (Notera att priset ska vara i siffror men resterande som strings). Datum när den skapats läggs till. Du får itemId tillbaka som är unikt för den varan. |
-| PUT | /admin/:itemId | Ändra vara i menyn | För att ändra en vara anger du itemId i path parameter, och i JSON body anger du det du vill ändra och ändringen, om du endast vill ändra titeln skriver du följande: `{"title": "nyTitel"}`. Datum för ändring läggs till. Den redigerade varan returneras till dig. OBS! Menyn uppdateras inte förrän servern startats om |
+| PUT | /admin/:itemId | Ändra vara i menyn | För att ändra en vara anger du **itemId i path parameter**, och i JSON body anger du det du vill ändra och ändringen, om du endast vill ändra titeln skriver du följande: `{"title": "nyTitel"}`. Datum för ändring läggs till. Den redigerade varan returneras till dig. **OBS!** Menyn uppdateras inte förrän servern startats om |
 | GET | /admin/:itemId | Se vara i menyn | Om du är inloggad som admin kan du se en vara genom att ange itemId som path parameter |
 | DEL | /admin/:itemId | Ta bort vara från menyn | Om du är inloggad som admin kan du ta bort en vara genom att ange itemId som path parameter |
-| POST | /admin/special-offers | Skapa erbjudanden | Om du är inloggad som admin kan du välja två varor från menyn och lägga till dessa som ett erbjudande där priset justerats så kunden får 20% rabatt på den kombinationen |
+| POST | /admin/special-offers | Skapa erbjudanden | Om du är inloggad som admin kan du välja två varor från menyn och lägga till dessa som ett erbjudande där priset justerats så kunden får 20% rabatt på den kombinationen. Du lägger till dessa i JSON body i följande format: `{"item1": "[id på den vara du vill lägga till]", "item2": "[id på den andra varan du vill lägga till]"` (Notera att det endast går att lägga till två varor)|
 
 ## Installation och hur du kör programmet
 
@@ -52,7 +52,7 @@ Gå igenom följande steg för att skapa en lokal kopia och köra det:
 
 2. Navigate to the project directory:
    ```bash
-   cd reactified-resume
+   cd Airbean-Individuell-examination
 
 3. Install dependencies:
    ```bash
