@@ -33,15 +33,15 @@ router.post("/", async (req, res) => {
       menu.findOne({itemId: orderId}, (err, docs) => { //justerat så att funktionen hämtar från meny-databasen
    
         menuItems = docs //sparar datan som hittas i variabeln
-
-        //extraherar titel och pris för att presentera för användaren
-        const productTitle = menuItems.title;
-        const productPrice = menuItems.price;
-
         //kontroll om den inte hittar data eller om den är tom, då får man ett felmeddelande
         if (!menuItems || menuItems.length === 0) {
           return res.status(404).send("The requested product could not be found");
         }
+        //extraherar titel och pris för att presentera för användaren
+        const productTitle = menuItems.title;
+        const productPrice = menuItems.price;
+
+
 
         //lägger in produkt i användarens cart
         cart.insert({

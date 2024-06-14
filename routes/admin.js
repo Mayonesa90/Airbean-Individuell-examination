@@ -2,6 +2,7 @@ import express from 'express'
 import session from "express-session";
 import validateUserCreation from "../middlewares/userValidation.js";
 import { validateItemCreation } from '../middlewares/menuValidation.js'
+import { validateItemEdit } from '../middlewares/editValidation.js';
 import requireAdminLogin from '../middlewares/requireAdminLogin.js';
 import { createAdmin, getAdminById, validateAdmin } from "../models/admin.js";
 import { updateItem, createMenuItem, getMenuItem, deleteItem } from '../models/menu.js'
@@ -122,7 +123,7 @@ router.post("/logout", requireAdminLogin, async (req, res) => {
   })
 
   //PUT - redigera item med itemId som path parameter och ändringar i JSON body
-  router.put('/:itemId', requireAdminLogin, (req, res) => {
+  router.put('/:itemId', requireAdminLogin, validateItemEdit, (req, res) => {
     const itemId = req.params.itemId
 
     getMenuItem(itemId, (err, item) => {
