@@ -98,19 +98,23 @@ router.get("/:orderId", async (req, res) => {
   try {
     const { orderId } = req.params;
     const order = await orders.findOne({ orderId: orderId });
-
     if (!order) {
       return res.status(404).send("Order not found");
     }
 
     const items = order.items
-      .map((item) => `<li>${item.title} (${item.price} kr)</li>`)
+      .map((item) => `<li>${item.title} ${item.price} kr</li>`)
       .join("");
       
     const estimatedDeliveryTime = order.estimatedDeliveryTime;
 
     res.send(
-      `<p>Order confirmation</p><ul>${items}</ul><p>Estimated delivery time: ${estimatedDeliveryTime}</p>`
+      `<p>Order confirmation</p>
+      <ul>${items}</ul>
+      <p>Total: ${order.total} kr</p>
+      <strong>Estimated delivery time: ${estimatedDeliveryTime}</strong>
+      <p>Orderid: ${order.orderId}</p>
+      `
     );
   } catch (error) {
     console.log(error);
